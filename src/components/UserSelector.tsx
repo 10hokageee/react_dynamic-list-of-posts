@@ -5,9 +5,13 @@ import classNames from 'classnames';
 
 type Props = {
   handleUserIdChange: (userId: number) => void;
+  handlePostIdChange: (postId: number | null) => void;
 };
 
-export const UserSelector: React.FC<Props> = ({ handleUserIdChange }) => {
+export const UserSelector: React.FC<Props> = ({
+  handleUserIdChange,
+  handlePostIdChange,
+}) => {
   const [users, setUsers] = useState<User[]>([]);
   const [showDropdown, setShowDropDown] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -20,6 +24,7 @@ export const UserSelector: React.FC<Props> = ({ handleUserIdChange }) => {
     handleUserIdChange(user.id);
     setSelectedUser(user);
     setShowDropDown(false);
+    handlePostIdChange(null);
   };
 
   return (

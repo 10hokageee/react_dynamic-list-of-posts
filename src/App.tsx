@@ -13,8 +13,8 @@ import { getPosts } from './services/posts';
 
 export const App = () => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErromessage] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
@@ -24,11 +24,13 @@ export const App = () => {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
+    setErrorMessage(false);
+
     getPosts(selectedUserId)
       .then(setPosts)
-      .catch(() => setErromessage(true))
-      .finally(() => setLoading(false));
+      .catch(() => setErrorMessage(true))
+      .finally(() => setIsLoading(false));
   }, [selectedUserId]);
 
   return (
@@ -38,7 +40,8 @@ export const App = () => {
           <div className="tile is-parent">
             <div className="tile is-child box is-success">
               <div className="block">
-                <UserSelector handleUserIdChange={setSelectedUserId} />
+                <UserSelector handleUserIdChange={setSelectedUserId}
+                  handlePostIdChange={setSelectedPostId} />
               </div>
 
               <div className="block" data-cy="MainContent">
@@ -46,7 +49,7 @@ export const App = () => {
                   <p data-cy="NoSelectedUser">No user selected</p>
                 )}
 
-                {loading && <Loader />}
+                {isLoading && <Loader />}
 
                 {errorMessage && (
                   <div
@@ -58,7 +61,7 @@ export const App = () => {
                 )}
 
                 {selectedUserId &&
-                  !loading &&
+                  !isLoading &&
                   !errorMessage &&
                   posts.length === 0 && (
                     <div
@@ -69,7 +72,7 @@ export const App = () => {
                     </div>
                   )}
 
-                {!loading && posts.length > 0 && (
+                {!isLoading && posts.length > 0 && (
                   <PostsList
                     handlePostChange={setSelectedPostId}
                     posts={posts}

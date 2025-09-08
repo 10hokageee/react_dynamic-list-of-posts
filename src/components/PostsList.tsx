@@ -10,7 +10,7 @@ type Props = {
 export const PostsList: React.FC<Props> = ({ posts, handlePostChange }) => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
-  const handle = (post: Post) => {
+  const handlePostToggle = (post: Post) => {
     if (selectedPost?.id === post.id) {
       setSelectedPost(null);
       handlePostChange(null);
@@ -43,7 +43,7 @@ export const PostsList: React.FC<Props> = ({ posts, handlePostChange }) => {
 
               <td className="has-text-right is-vcentered">
                 <button
-                  onClick={() => handle(post)}
+                  onClick={() => handlePostToggle(post)}
                   type="button"
                   data-cy="PostButton"
                   className={classNames('button is-link', {

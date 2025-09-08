@@ -12,7 +12,7 @@ type Props = {
 
 export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);
   const [showFrom, setShowForm] = useState(false);
 
@@ -21,14 +21,15 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
+    setErrorMessage(false);
     setShowForm(false);
 
     postService
       .getComments(selectedPostId)
       .then(commentsFormServer => setComments(commentsFormServer))
       .catch(() => setErrorMessage(true))
-      .finally(() => setLoading(false));
+      .finally(() => setIsLoading(false));
   }, [selectedPostId]);
 
   const findPost = posts.find(post => post.id === selectedPostId);
@@ -55,7 +56,7 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
   return (
     <div className="content" data-cy="PostDetails">
       {selectedPostId && (
-        <div className="content" data-cy="PostDetails">
+        <div className="content">
           <div className="block">
             <h2 data-cy="PostTitle">
               {selectedPostId}: {findPost?.title}
@@ -65,9 +66,9 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
           </div>
 
           <div className="block">
-            {loading && <Loader />}
+            {isLoading && <Loader />}
 
-            {!loading && comments.length === 0 && !errorMessage && (
+            {!isLoading && comments.length === 0 && !errorMessage && (
               <p className="title is-4" data-cy="NoCommentsMessage">
                 No comments yet
               </p>
@@ -79,7 +80,7 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
               </div>
             )}
 
-            {!loading && comments.length > 0 && (
+            {!isLoading && comments.length > 0 && (
               <>
                 <p className="title is-4">Comments:</p>
                 {comments.map(comment => (
@@ -114,7 +115,7 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
               </>
             )}
 
-            {!showFrom && !loading && (
+            {!showFrom && !isLoading && (
               <button
                 data-cy="WriteCommentButton"
                 type="button"

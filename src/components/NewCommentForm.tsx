@@ -39,14 +39,14 @@ export const NewCommentForm: React.FC<Props> = ({
     setErrorTextarea(false);
   };
 
-  const handleFormChange = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    setErrorName(!name);
-    setErrorEmail(!email);
-    setErrorTextarea(!textarea);
+    setErrorName(!name.trim());
+    setErrorEmail(!email.trim());
+    setErrorTextarea(!textarea.trim());
 
-    if (!name || !email || !textarea) {
+    if (!name.trim() || !email.trim() || !textarea.trim()) {
       return;
     }
 
@@ -60,9 +60,8 @@ export const NewCommentForm: React.FC<Props> = ({
         postId: selectedPostId as number,
       });
       setLoading(false);
+      setTextarea('');
     }, 300);
-
-    setTextarea('');
   };
 
   const clear = () => {
@@ -76,7 +75,7 @@ export const NewCommentForm: React.FC<Props> = ({
   };
 
   return (
-    <form onSubmit={handleFormChange} data-cy="NewCommentForm">
+    <form onSubmit={handleSubmit} data-cy="NewCommentForm">
       <div className="field" data-cy="NameField">
         <label className="label" htmlFor="comment-author-name">
           Author Name
