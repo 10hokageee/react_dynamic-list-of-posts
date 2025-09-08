@@ -19,6 +19,7 @@ export const App = () => {
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
   useEffect(() => {
+    setSelectedPostId(null);
 
     if (selectedUserId === null) {
       return;
@@ -45,7 +46,7 @@ export const App = () => {
               </div>
 
               <div className="block" data-cy="MainContent">
-                {!selectedUserId && (
+                {selectedUserId === null && (
                   <p data-cy="NoSelectedUser">No user selected</p>
                 )}
 
@@ -74,6 +75,7 @@ export const App = () => {
 
                 {!isLoading && posts.length > 0 && (
                   <PostsList
+                    selectedPostId={selectedPostId}
                     handlePostChange={setSelectedPostId}
                     posts={posts}
                   />

@@ -53,13 +53,13 @@ export const UserSelector: React.FC<Props> = ({
       <div className="dropdown-menu" id="dropdown-menu" role="menu">
         <div className="dropdown-content">
           {users.map(user => (
-            <a
-              onClick={() => handleSelectChange(user)}
+            <button
+              onMouseDown={() => handleSelectChange(user)}
               key={user.id}
               className="dropdown-item"
             >
               {user.name}
-            </a>
+            </button>
           ))}
         </div>
       </div>

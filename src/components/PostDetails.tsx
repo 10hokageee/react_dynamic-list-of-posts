@@ -14,10 +14,10 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);
-  const [showFrom, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    if (!selectedPostId) {
+    if (selectedPostId === null) {
       return;
     }
 
@@ -27,48 +27,61 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
 
     postService
       .getComments(selectedPostId)
-      .then(commentsFormServer => setComments(commentsFormServer))
+      .then(setComments)
       .catch(() => setErrorMessage(true))
       .finally(() => setIsLoading(false));
   }, [selectedPostId]);
 
   const findPost = posts.find(post => post.id === selectedPostId);
 
-  const deleteComment = (commentId: number) => {
-    postService.deleteComment(commentId);
-    setComments(currentComments =>
-      currentComments.filter(currentComment => currentComment.id !== commentId),
-    );
+  const deleteComment = async (commentId: number) => {
+    try {
+      await postService.deleteComment(commentId);
+      setComments(currentComments =>
+        currentComments.filter(c => c.id !== commentId),
+      );
+    } catch {
+      // Обработка ошибки (можно добавить уведомление)
+    }
   };
 
-  const addComment = ({ postId, body, name, email }: Omit<Comment, 'id'>) => {
-    postService
-      .createComment({ postId, body, name, email })
-      .then(newComment => {
-        setComments(currentComments => [...currentComments, newComment]);
+  const addComment = async ({
+    postId,
+    body,
+    name,
+    email,
+  }: Omit<Comment, 'id'>) => {
+    try {
+      const newComment = await postService.createComment({
+        postId,
+        body,
+        name,
+        email,
       });
+
+      setComments(currentComments => [...currentComments, newComment]);
+    } catch {
+      // Обработка ошибки
+    }
   };
 
-  const writeComment = () => {
-    setShowForm(true);
-  };
+  const writeComment = () => setShowForm(true);
 
   return (
     <div className="content" data-cy="PostDetails">
-      {selectedPostId && (
+      {selectedPostId !== null && (
         <div className="content">
           <div className="block">
             <h2 data-cy="PostTitle">
               {selectedPostId}: {findPost?.title}
             </h2>
-
             <p data-cy="PostBody">{findPost?.body}</p>
           </div>
 
           <div className="block">
             {isLoading && <Loader />}
 
-            {!isLoading && comments.length === 0 && !errorMessage && (
+            {!isLoading && !errorMessage && comments.length === 0 && (
               <p className="title is-4" data-cy="NoCommentsMessage">
                 No comments yet
               </p>
@@ -102,9 +115,7 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
                         onClick={() => deleteComment(comment.id)}
                         className="delete is-small"
                         aria-label="delete"
-                      >
-                        delete button
-                      </button>
+                      />
                     </div>
 
                     <div className="message-body" data-cy="CommentBody">
@@ -115,7 +126,7 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
               </>
             )}
 
-            {!showFrom && !isLoading && (
+            {!showForm && !isLoading && (
               <button
                 data-cy="WriteCommentButton"
                 type="button"
@@ -127,7 +138,7 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
             )}
           </div>
 
-          {showFrom && (
+          {showForm && (
             <NewCommentForm
               selectedPostId={selectedPostId}
               onSubmit={addComment}

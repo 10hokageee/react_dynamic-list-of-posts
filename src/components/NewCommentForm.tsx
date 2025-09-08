@@ -3,7 +3,12 @@ import React, { useState } from 'react';
 import { Comment } from '../types/Comment';
 
 type Props = {
-  onSubmit: ({ postId, body, name, email }: Omit<Comment, 'id'>) => void;
+  onSubmit: ({
+    postId,
+    body,
+    name,
+    email,
+  }: Omit<Comment, 'id'>) => Promise<void>;
   selectedPostId: number | null;
 };
 
@@ -20,7 +25,7 @@ export const NewCommentForm: React.FC<Props> = ({
   const [textarea, setTextarea] = useState('');
   const [errorTextarea, setErrorTextarea] = useState(false);
 
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -39,29 +44,33 @@ export const NewCommentForm: React.FC<Props> = ({
     setErrorTextarea(false);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const hasError = !name.trim() || !email.trim() || !textarea.trim();
 
     setErrorName(!name.trim());
     setErrorEmail(!email.trim());
     setErrorTextarea(!textarea.trim());
 
-    if (!name.trim() || !email.trim() || !textarea.trim()) {
+    if (hasError || !selectedPostId) {
       return;
     }
 
-    setLoading(true);
-
-    setTimeout(() => {
-      onSubmit({
+    setIsLoading(true);
+    try {
+      await onSubmit({
         name,
         email,
         body: textarea,
-        postId: selectedPostId as number,
+        postId: selectedPostId,
       });
-      setLoading(false);
+
       setTextarea('');
-    }, 300);
+    } catch (err) {
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const clear = () => {
@@ -69,9 +78,9 @@ export const NewCommentForm: React.FC<Props> = ({
     setEmail('');
     setTextarea('');
 
-    setErrorTextarea(false);
     setErrorName(false);
     setErrorEmail(false);
+    setErrorTextarea(false);
   };
 
   return (
@@ -80,7 +89,6 @@ export const NewCommentForm: React.FC<Props> = ({
         <label className="label" htmlFor="comment-author-name">
           Author Name
         </label>
-
         <div className="control has-icons-left has-icons-right">
           <input
             type="text"
@@ -91,11 +99,9 @@ export const NewCommentForm: React.FC<Props> = ({
             onChange={handleNameChange}
             value={name}
           />
-
           <span className="icon is-small is-left">
             <i className="fas fa-user" />
           </span>
-
           {errorName && (
             <span
               className={classNames('icon is-small is-right', {
@@ -107,7 +113,6 @@ export const NewCommentForm: React.FC<Props> = ({
             </span>
           )}
         </div>
-
         {errorName && (
           <p className="help is-danger" data-cy="ErrorMessage">
             Name is required
@@ -119,7 +124,6 @@ export const NewCommentForm: React.FC<Props> = ({
         <label className="label" htmlFor="comment-author-email">
           Author Email
         </label>
-
         <div className="control has-icons-left has-icons-right">
           <input
             type="text"
@@ -130,11 +134,9 @@ export const NewCommentForm: React.FC<Props> = ({
             value={email}
             onChange={handleEmailChange}
           />
-
           <span className="icon is-small is-left">
             <i className="fas fa-envelope" />
           </span>
-
           {errorEmail && (
             <span
               className={classNames('icon is-small is-right', {
@@ -146,7 +148,6 @@ export const NewCommentForm: React.FC<Props> = ({
             </span>
           )}
         </div>
-
         {errorEmail && (
           <p className="help is-danger" data-cy="ErrorMessage">
             Email is required
@@ -158,7 +159,6 @@ export const NewCommentForm: React.FC<Props> = ({
         <label className="label" htmlFor="comment-body">
           Comment Text
         </label>
-
         <div className="control">
           <textarea
             id="comment-body"
@@ -169,7 +169,6 @@ export const NewCommentForm: React.FC<Props> = ({
             onChange={handleTextareaChange}
           />
         </div>
-
         {errorTextarea && (
           <p
             className={classNames('help', { 'is-danger': errorTextarea })}
@@ -184,14 +183,15 @@ export const NewCommentForm: React.FC<Props> = ({
         <div className="control">
           <button
             type="submit"
-            className={classNames('button is-link', { 'is-loading': loading })}
+            className={classNames('button is-link', {
+              'is-loading': isLoading,
+            })}
           >
             Add
           </button>
         </div>
 
         <div className="control">
-          {/* eslint-disable-next-line react/button-has-type */}
           <button
             onClick={clear}
             type="reset"
