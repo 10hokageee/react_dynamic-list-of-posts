@@ -26,6 +26,7 @@ export const NewCommentForm: React.FC<Props> = ({
   const [errorTextarea, setErrorTextarea] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [errorSubmit, setErrorSubmit] = useState('');
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -67,24 +68,26 @@ export const NewCommentForm: React.FC<Props> = ({
       });
 
       setTextarea('');
-    } catch (err) {
+    } catch {
+      setErrorSubmit('Cant submit');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const clear = () => {
+  const reset = () => {
     setName('');
     setEmail('');
     setTextarea('');
 
+    setErrorSubmit('');
     setErrorName(false);
     setErrorEmail(false);
     setErrorTextarea(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} data-cy="NewCommentForm">
+    <form onSubmit={handleSubmit} onReset={reset} data-cy="NewCommentForm">
       <div className="field" data-cy="NameField">
         <label className="label" htmlFor="comment-author-name">
           Author Name
@@ -192,15 +195,16 @@ export const NewCommentForm: React.FC<Props> = ({
         </div>
 
         <div className="control">
-          <button
-            onClick={clear}
-            type="reset"
-            className="button is-link is-light"
-          >
+          <button type="reset" className="button is-link is-light">
             Clear
           </button>
         </div>
       </div>
+      {errorSubmit && (
+        <div className="notification is-danger" data-cy="CommentsError">
+          {errorSubmit}
+        </div>
+      )}
     </form>
   );
 };

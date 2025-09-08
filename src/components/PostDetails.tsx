@@ -15,6 +15,7 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [commentError, setCommentError] = useState('');
 
   useEffect(() => {
     if (selectedPostId === null) {
@@ -40,8 +41,9 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
       setComments(currentComments =>
         currentComments.filter(c => c.id !== commentId),
       );
+      setCommentError('');
     } catch {
-      // Обработка ошибки (можно добавить уведомление)
+      setCommentError('Cant delete a comment');
     }
   };
 
@@ -60,8 +62,9 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
       });
 
       setComments(currentComments => [...currentComments, newComment]);
+      setCommentError('');
     } catch {
-      // Обработка ошибки
+      setCommentError('Cant create a comment');
     }
   };
 
@@ -90,6 +93,12 @@ export const PostDetails: React.FC<Props> = ({ selectedPostId, posts }) => {
             {errorMessage && (
               <div className="notification is-danger" data-cy="CommentsError">
                 Something went wrong
+              </div>
+            )}
+
+            {commentError && (
+              <div className="notification is-danger" data-cy="CommentsError">
+                {commentError}
               </div>
             )}
 

@@ -65,13 +65,13 @@ export const App = () => {
                   !isLoading &&
                   !errorMessage &&
                   posts.length === 0 && (
-                    <div
-                      className="notification is-warning"
-                      data-cy="NoPostsYet"
-                    >
+                  <div
+                    className="notification is-warning"
+                    data-cy="NoPostsYet"
+                  >
                       No posts yet
-                    </div>
-                  )}
+                  </div>
+                )}
 
                 {!isLoading && posts.length > 0 && (
                   <PostsList
